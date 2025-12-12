@@ -1,0 +1,5 @@
+/* ApiTester styles */
+
+[data-primary] {
+    color: var(--primary-strong);
+}

@@ -1,0 +1,22 @@
+/* ProjectCard styles */
+
+[data-primary] {
+    color: var(--primary-strong);
+}
+
+.status-online-dark {
+    color: var(--primary-strong);
+}
+
+.btn {
+    cursor: pointer;
+}
+
+.btn .icon {
+    transition: transform 160ms ease, color 160ms ease;
+}
+
+.btn:hover .icon {
+    transform: scale(1.12);
+    color: var(--primary-strong);
+}

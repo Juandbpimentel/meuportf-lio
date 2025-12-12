@@ -1,0 +1,14 @@
+/* Hero styles */
+
+[data-primary],
+.text-var-primary {
+    color: var(--primary-strong);
+}
+
+.text-var-text-base {
+    color: var(--text-base);
+}
+
+.text-var-muted {
+    color: var(--text-muted);
+}

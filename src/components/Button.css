@@ -1,0 +1,43 @@
+/* Global interactive button styles */
+.btn {
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 9999px; /* circular */
+  padding: 0.375rem 0.75rem; /* px-3 py-2 */
+  font-weight: 600;
+  transition: transform 160ms ease, box-shadow 160ms ease, color 160ms ease;
+  transform-origin: center;
+}
+
+.btn:hover {
+  transform: scale(1.03);
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+.btn:focus {
+  outline: none;
+}
+
+.btn:focus-visible {
+  box-shadow: 0 0 0 3px rgba(235, 143, 62, 0.15);
+}
+
+.btn .icon {
+  transition: transform 160ms ease, color 160ms ease;
+}
+
+.btn:hover .icon {
+  transform: scale(1.12);
+  color: var(--primary-strong);
+}
+
+/* small variant */
+.btn--sm {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+}

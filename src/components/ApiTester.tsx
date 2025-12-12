@@ -21,6 +21,10 @@ export function ApiTester({ project, onClose, lang, isDark }: ApiTesterProps) {
     Record<string, string>
   >({});
   const [isSendingRequest, setIsSendingRequest] = useState(false);
+  const [downloadData, setDownloadData] = useState<{
+    url: string;
+    filename: string;
+  } | null>(null);
 
   const activeEndpoint = project?.endpoints?.[activeEndpointIndex] ?? null;
 
@@ -31,6 +35,7 @@ export function ApiTester({ project, onClose, lang, isDark }: ApiTesterProps) {
     setActiveEndpointIndex(0);
     setResponsePreview("");
     setRequestError(null);
+    setDownloadData(null);
   }, [project]);
 
   useEffect(() => {
@@ -48,6 +53,7 @@ export function ApiTester({ project, onClose, lang, isDark }: ApiTesterProps) {
     }
     setResponsePreview("");
     setRequestError(null);
+    setDownloadData(null);
   }, [activeEndpoint]);
 
   const resolvedPath = useMemo(() => {
@@ -107,6 +113,7 @@ export function ApiTester({ project, onClose, lang, isDark }: ApiTesterProps) {
     setIsSendingRequest(true);
     setRequestError(null);
     setResponsePreview("");
+    setDownloadData(null);
 
     try {
       const response = await fetch(finalUrl, {
@@ -118,9 +125,30 @@ export function ApiTester({ project, onClose, lang, isDark }: ApiTesterProps) {
       });
 
       const contentType = response.headers.get("content-type") ?? "";
-      if (contentType.includes("application/pdf")) {
+
+      // Handle file downloads
+      if (
+        contentType.includes("application/pdf") ||
+        contentType.includes("application/octet-stream") ||
+        contentType.includes("image/") ||
+        response.headers.get("content-disposition")?.includes("attachment")
+      ) {
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+
+        // Try to guess filename
+        let filename = "download";
+        const disposition = response.headers.get("content-disposition");
+        if (disposition && disposition.includes("filename=")) {
+          filename = disposition.split("filename=")[1].replace(/['"]/g, "");
+        } else {
+          const ext = contentType.split("/")[1]?.split(";")[0];
+          if (ext) filename += `.${ext}`;
+        }
+
+        setDownloadData({ url, filename });
         setResponsePreview(
-          `PDF recebido (status ${response.status}). Download não é exibido aqui.`
+          `Arquivo pronto para download: ${filename} (${(blob.size / 1024).toFixed(2)} KB)`
         );
       } else if (contentType.includes("application/json")) {
         const data = await response.json();
@@ -447,14 +475,30 @@ export function ApiTester({ project, onClose, lang, isDark }: ApiTesterProps) {
                       : "border-slate-200 bg-white"
                   )}
                 >
-                  <p
-                    className={cn(
-                      "text-xs font-semibold",
-                      isDark ? "text-slate-200" : "text-slate-700"
+                  <div className="flex items-center justify-between">
+                    <p
+                      className={cn(
+                        "text-xs font-semibold",
+                        isDark ? "text-slate-200" : "text-slate-700"
+                      )}
+                    >
+                      {labels[lang].response}
+                    </p>
+                    {downloadData && (
+                      <a
+                        href={downloadData.url}
+                        download={downloadData.filename}
+                        className={cn(
+                          "btn btn--sm text-[10px] py-1 px-2",
+                          isDark
+                            ? "bg-emerald-500/20 text-emerald-200 hover:bg-emerald-500/30"
+                            : "bg-emerald-100 text-emerald-800 hover:bg-emerald-200"
+                        )}
+                      >
+                        Baixar Arquivo
+                      </a>
                     )}
-                  >
-                    {labels[lang].response}
-                  </p>
+                  </div>
                   <pre className="max-h-64 overflow-auto whitespace-pre-wrap break-all text-xs">
                     {responsePreview}
                   </pre>
